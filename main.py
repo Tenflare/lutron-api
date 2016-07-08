@@ -96,13 +96,35 @@ class ShadesClose(Resource):
             session.read_until("password")
             session.write('integration\r\n')
             prompt = session.read_until('GNET')
-            print prompt
-            print 'think we are logged in'
             connection = True
 
         close(session)
 
         return {'status': 'closed'}
+
+class Shades(Resource):
+    def post(self, level):
+        connection = False
+        session = telnetlib.Telnet('192.168.10.26', 23)
+        while connection is False:
+            session.read_until("login:")
+            session.write('lutron\r\n')
+            session.read_until("password")
+            session.write('integration\r\n')
+            prompt = session.read_until('GNET')
+            connection = True
+        if int(level) < 100:
+            close(session)
+            return {'status': 'closed'}
+        else:
+
+            open(session)
+            return {'status': 'open'}
+
+
+
+
+api.add_resource(Shades, '/shades/<string:level>')
 
 api.add_resource(ShadesOpen, '/shades/open')
 api.add_resource(ShadesClose, '/shades/close')
