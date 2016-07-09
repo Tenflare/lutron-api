@@ -113,7 +113,7 @@ class Shades(Resource):
             session.write('integration\r\n')
             prompt = session.read_until('GNET')
             connection = True
-        if int(level) < 100:
+        if int(level) < 99:
             close(session)
             return {'status': 'closed'}
         else:
