@@ -151,7 +151,7 @@ class Shades(Resource):
             set_level(session, '50')
             return {'status': '50'}
 
-        elif int(level) <= 99:
+        elif int(level) >= 99:
             open(session)
             return {'status': 'open'}
 
