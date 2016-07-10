@@ -22,3 +22,17 @@ The latest build of this project is also available as a Docker image from Docker
     docker pull kecorbin/lutron-shades-api
     sudo docker run -d --restart=always --name shades-api --net=host shades-api
 
+## Usage
+
+Open the shades
+
+    curl -X POST 127.0.0.1:5000/shades/open
+
+Close the shades
+
+    curl -X POST 127.0.0.1:5000/shades/close
+
+Set the shades at 50%
+
+    curl -X POST 127.0.0.1:5000/shades/50
+
