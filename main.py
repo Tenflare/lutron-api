@@ -147,16 +147,16 @@ class ShadesClose(Resource):
 class Shades(Resource):
     def post(self, level):
         session = login()
-        if int(level) >= 99:
-            close(session)
+        if int(level) == 50:
+            set_level(session, level)
             return {'status': 'closed'}
-        elif int(level) == 0:
+        elif int(level) <= 99:
 
-            open(session)
+            close(session)
             return {'status': 'open'}
 
         else:
-            set_level(session, level)
+            open(session)
 
         return {'status': level}
 
