@@ -10,38 +10,58 @@ api = Api(app)
 
 _NEWLINE = '\n'
 
+LUTRON_HOST = '192.168.10.26'
+LUTRON_PORT = 23
+LUTRON_USERNAME = 'lutron'
+LUTRON_PASSWORD = 'integration'
+
+
 def run_async(func):
-	"""
-		run_async(func)
-			function decorator, intended to make "func" run in a separate
-			thread (asynchronously).
-			Returns the created Thread object
+    """
+        run_async(func)
+            function decorator, intended to make "func" run in a separate
+            thread (asynchronously).
+            Returns the created Thread object
 
-			E.g.:
-			@run_async
-			def task1():
-				do_something
+            E.g.:
+            @run_async
+            def task1():
+                do_something
 
-			@run_async
-			def task2():
-				do_something_too
+            @run_async
+            def task2():
+                do_something_too
 
-			t1 = task1()
-			t2 = task2()
-			...
-			t1.join()
-			t2.join()
-	"""
-	from threading import Thread
-	from functools import wraps
+            t1 = task1()
+            t2 = task2()
+            ...
+            t1.join()
+            t2.join()
+    """
+    from threading import Thread
+    from functools import wraps
 
-	@wraps(func)
-	def async_func(*args, **kwargs):
-		func_hl = Thread(target = func, args = args, kwargs = kwargs)
-		func_hl.start()
-		return func_hl
+    @wraps(func)
+    def async_func(*args, **kwargs):
+        func_hl = Thread(target=func, args=args, kwargs=kwargs)
+        func_hl.start()
+        return func_hl
 
-	return async_func
+    return async_func
+
+
+def login():
+    connection = False
+    session = telnetlib.Telnet(LUTRON_HOST, LUTRON_PORT)
+    while connection is False:
+        session.read_until("login:")
+        session.write('lutron\r\n')
+        session.read_until("password")
+        session.write('integration\r\n')
+        prompt = session.read_until('GNET')
+        connection = True
+    return session
+
 
 @run_async
 def open(session):
@@ -53,6 +73,7 @@ def open(session):
     time.sleep(2)
     session.write('#OUTPUT,5,1,100\r\n')
     time.sleep(2)
+
 
 @run_async
 def close(session):
@@ -66,68 +87,67 @@ def close(session):
     time.sleep(2)
 
 
+def get_status(session):
+    session.write('?OUTPUT,3,1')
+    prompt = session.read_until('~OUTPUT,3,1,')
+    return int(float(prompt.split(',1,')[1].split('\r')[0]))
+
+
+@run_async
+def set_level(session, level):
+    session.write('#OUTPUT,2,1,{}\r\n'.format(level))
+    time.sleep(2)
+    session.write('#OUTPUT,3,1,{}\r\n'.format(level))
+    time.sleep(2)
+    session.write('#OUTPUT,4,1,{}\r\n'.format(level))
+    time.sleep(2)
+    session.write('#OUTPUT,5,1,{}\r\n'.format(level))
+    time.sleep(2)
+
+
+class Status(Resource):
+    def get(self):
+        session = login()
+        resp = get_status(session)
+
+        return {'status': resp}
+
+
 class ShadesOpen(Resource):
     def post(self):
-        connection = False
-        session = telnetlib.Telnet('192.168.10.26', 23)
-        while connection is False:
-            session.read_until("login:")
-            session.write('lutron\r\n')
-            session.read_until("password")
-            session.write('integration\r\n')
-            prompt = session.read_until('GNET')
-            print prompt
-            print 'think we are logged in'
-            connection = True
-
+        session = login()
         open(session)
 
         return {'status': 'open'}
 
 
-
 class ShadesClose(Resource):
     def post(self):
-        connection = False
-        session = telnetlib.Telnet('192.168.10.26', 23)
-        while connection is False:
-            session.read_until("login:")
-            session.write('lutron\r\n')
-            session.read_until("password")
-            session.write('integration\r\n')
-            prompt = session.read_until('GNET')
-            connection = True
-
+        session = login()
         close(session)
 
         return {'status': 'closed'}
 
+
 class Shades(Resource):
     def post(self, level):
-        connection = False
-        session = telnetlib.Telnet('192.168.10.26', 23)
-        while connection is False:
-            session.read_until("login:")
-            session.write('lutron\r\n')
-            session.read_until("password")
-            session.write('integration\r\n')
-            prompt = session.read_until('GNET')
-            connection = True
-        if int(level) < 99:
+        session = login()
+        if int(level) >= 99:
             close(session)
             return {'status': 'closed'}
-        else:
+        elif int(level) == 0:
 
             open(session)
             return {'status': 'open'}
 
-
+        else:
+            set_level(session, level)
 
 
 api.add_resource(Shades, '/shades/<string:level>')
-
 api.add_resource(ShadesOpen, '/shades/open')
 api.add_resource(ShadesClose, '/shades/close')
+api.add_resource(Status, '/shades/status')
 
 
 if __name__ == '__main__':
