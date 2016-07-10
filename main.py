@@ -143,6 +143,8 @@ class Shades(Resource):
         else:
             set_level(session, level)
 
+        return {'status': level}
+
 
 api.add_resource(Shades, '/shades/<string:level>')
 api.add_resource(ShadesOpen, '/shades/open')
