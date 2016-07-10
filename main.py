@@ -65,6 +65,11 @@ def login():
 
 @run_async
 def open(session):
+    """
+    Helper function to "cascade" the opening/closing of shades
+    :param session: telnetlib.Telnet authenticated session
+    :return:
+    """
     session.write('#OUTPUT,2,1,100\r\n')
     time.sleep(2)
     session.write('#OUTPUT,3,1,100\r\n')
@@ -77,6 +82,11 @@ def open(session):
 
 @run_async
 def close(session):
+    """
+    Helper function to "cascade" the opening/closing of shades
+    :param session: telnetlib.Telnet authenticated session
+    :return:
+    """
     session.write('#OUTPUT,5,1,0\r\n')
     time.sleep(2)
     session.write('#OUTPUT,4,1,0\r\n')
@@ -87,9 +97,14 @@ def close(session):
     time.sleep(2)
 
 
-def get_status(session):
-    session.write('?OUTPUT,3,1')
-    prompt = session.read_until('~OUTPUT,3,1,')
+def get_status(session, device_id='3'):
+    """
+    Return the status of a device
+    :param session: telnetlib.Telnet authenticated session
+    :return:
+    """
+    session.write('?OUTPUT,{},1'.format(device_id))
+    prompt = session.read_until('~OUTPUT,{},1,'.format(device_id))
     return int(float(prompt.split(',1,')[1].split('\r')[0]))
 
 
