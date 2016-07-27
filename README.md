@@ -20,7 +20,7 @@ After downloading, install using setuptools.
 The latest build of this project is also available as a Docker image from Docker Hub
 
     docker pull kecorbin/lutron-shades-api
-    sudo docker run -d --restart=always -e LUTRON_HOST:<IP OF BRIDGE> --name shades-api --net=host shades-api
+    sudo docker run -d --restart=always -e LUTRON_HOST=<IP OF BRIDGE> --name shades-api --net=host shades-api
 
 ## Usage
 
