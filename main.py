@@ -79,6 +79,10 @@ def open(session):
     session.write('#OUTPUT,5,1,100\r\n')
     time.sleep(2)
 
+def send_lutron_command(session, integration, action, parameters):
+    session.write('#OUTPUT,{},{},{}\r\n'.format(integration, action, parameters or 0))
+    return "OK"
+
 
 @run_async
 def close(session):
@@ -106,6 +110,7 @@ def get_status(session, device_id='3'):
     session.write('?OUTPUT,{},1'.format(device_id))
     prompt = session.read_until('~OUTPUT,{},1,'.format(device_id))
     return int(float(prompt.split(',1,')[1].split('\r')[0]))
+
 
 
 @run_async
@@ -161,11 +166,34 @@ class Shades(Resource):
             return {'status': 'closed'}
 
 
+class OutputCommand(Resource):
+    """
+    Generic API resource for interacting with Lutron lights.  The primary interface is via the OUTPUT command for
+    controlling on/off status of Lutron devices.
+    """
+    def get(self, integration, action, parameters):
+        return {
+            'integration': integration,
+            'action': action,
+            'parameters': parameters
+        }
+
+    def post(self, integration, action, parameters):
+        session = login()
+        send_lutron_command(session, integration, action, parameters)
+        # Need better validation here, for now we assume the command worked
+        return {
+            'integration': integration,
+            'action': action,
+            'parameters': parameters
+        }
+
+
 api.add_resource(Shades, '/shades/<string:level>')
 api.add_resource(ShadesOpen, '/shades/open')
 api.add_resource(ShadesClose, '/shades/close')
 api.add_resource(Status, '/shades/status')
-
+api.add_resource(OutputCommand, '/api/output/<string:integration>/<string:action>/<string:parameters>')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
