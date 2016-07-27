@@ -36,3 +36,17 @@ Set the shades at 50%
 
     curl -X POST 127.0.0.1:5000/shades/50
 
+
+## Home Assistant Integration
+
+This can also be used to integrate Lutron into Home Assistant, using the shades example from above, the following can be
+specified in your configuration.yaml file for HASS.
+
+
+    - platform: command_line
+      rollershutters:
+        Living Room Rollershutter:
+          upcmd: curl -X POST http://192.168.10.25:5000/shades/open
+          downcmd: curl -X POST http://192.168.10.25:5000/shades/close
+          stopcmd: curl -X POST http://192.168.10.25:5000/shades/50
+
