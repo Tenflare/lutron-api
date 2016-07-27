@@ -1,3 +1,4 @@
+import os
 import telnetlib
 import time
 import requests
@@ -10,7 +11,7 @@ api = Api(app)
 
 _NEWLINE = '\n'
 
-LUTRON_HOST = '192.168.10.26'
+LUTRON_HOST = os.getenv('LUTRON_HOST')
 LUTRON_PORT = 23
 LUTRON_USERNAME = 'lutron'
 LUTRON_PASSWORD = 'integration'
