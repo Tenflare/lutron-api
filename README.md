@@ -24,6 +24,9 @@ The latest build of this project is also available as a Docker image from Docker
 
 ## Usage
 
+### Macros
+
+
 Open the shades
 
     curl -X POST 127.0.0.1:5000/shades/open
@@ -36,6 +39,35 @@ Set the shades at 50%
 
     curl -X POST 127.0.0.1:5000/shades/50
 
+
+### Device Command Examples
+
+```
+Start Lowering a Device Group
+
+
+/api/device/6/6/3 - Equivalent to #DEVICE,6,6,3
+
+Stop Lowering a Device Group
+
+/api/device/6/6/4 - Equivalent to #DEVICE,6,6,4
+
+Start Raising a Device Group
+
+#DEVICE,6,5,3
+/api/device/6/5/3
+
+Stop Lowering a Device Group
+
+#DEVICE,6,5,4
+/api/device/6/5/4
+
+```
+
+
+## Smarthings Integration
+
+**TODO**
 
 ## Home Assistant Integration
 
