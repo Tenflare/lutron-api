@@ -216,7 +216,7 @@ class ShadesStatus(Resource):
         resp = {'devices': {}}
         for id in ACTIVE_SHADES:
             value = get_status(session, device_id=id)
-            entry = {"value": int(value)}
+            entry = {"level": int(value)}
             resp['devices'][str(id)] = entry
         return resp
 
