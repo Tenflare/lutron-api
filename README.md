@@ -67,7 +67,9 @@ Stop Lowering a Device Group
 
 ## Smarthings Integration
 
-**TODO**
+Once you have your API up and running, integrating with other hubs is super simple.  
+
+Checkout [https://github.com/kecorbin/smartthings](https://github.com/kecorbin/smartthings) for a sample using Samsung Smartthings
 
 ## Home Assistant Integration
 
